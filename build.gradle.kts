@@ -6,3 +6,7 @@ plugins {
   alias(libs.plugins.secrets) apply false
   alias(libs.plugins.google.services) apply false
 }
+
+tasks.register<Delete>("clean") {
+  delete(rootProject.layout.buildDirectory)
+}
