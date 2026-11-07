@@ -1,0 +1,6 @@
+{
+  "name": "DataWarga",
+  "description": "Aplikasi Administrasi Kependudukan dengan keamanan enkripsi data, autentikasi 2FA dan biometrik, database Room, sinkronisasi cloud, serta ekspor Excel dan PDF.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
