@@ -16,11 +16,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
           cache: 'gradle'
 
       - name: Prepare Environment Config & Keystore
@@ -28,16 +28,21 @@ jobs:
           touch .env
           chmod +x gradlew || true
           if [ ! -f debug.keystore ]; then
+            echo "Generating debug.keystore for CI build..."
             keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
 
       - name: Build Debug APK with Gradle
-        run: ./gradlew assembleDebug --stacktrace --no-daemon
+        run: ./gradlew assembleDebug --stacktrace -Dkotlin.compiler.execution.strategy=daemon -Djava.awt.headless=true --no-configuration-cache
+
+      - name: Verify APK Generated
+        run: |
+          ls -la app/build/outputs/apk/debug/
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: DataWarga-Debug-APK
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: warn
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
           retention-days: 14
