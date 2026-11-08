@@ -9,4 +9,7 @@ plugins {
 
 tasks.register<Delete>("clean") {
   delete(rootProject.layout.buildDirectory)
+  subprojects {
+    delete(layout.buildDirectory)
+  }
 }
