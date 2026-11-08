@@ -7,6 +7,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Android APK
@@ -35,14 +38,40 @@ jobs:
       - name: Build Debug APK with Gradle
         run: ./gradlew assembleDebug --stacktrace -Dkotlin.compiler.execution.strategy=daemon -Djava.awt.headless=true --no-configuration-cache
 
-      - name: Verify APK Generated
+      - name: Verify and Prepare APK File
         run: |
           ls -la app/build/outputs/apk/debug/
+          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/DataWarga-v1.0-debug.apk
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: DataWarga-Debug-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/DataWarga-v1.0-debug.apk
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish Direct APK Download via GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name != 'pull_request'
+        with:
+          tag_name: "v1.0-latest"
+          name: "DataWarga v1.0 (Latest Build)"
+          body: |
+            ### 📱 Unduh Aplikasi DataWarga (APK Langsung)
+            
+            Klik langsung berkas **DataWarga-v1.0-debug.apk** di bagian **Assets** di bawah untuk mengunduh ke perangkat Anda:
+            - **DataWarga-v1.0-debug.apk** (Ukuran ~22.6 MB - Langsung instal tanpa perlu ekstrak file ZIP)
+            
+            ---
+            #### Petunjuk Instalasi di HP Android:
+            1. Klik dan unduh file **DataWarga-v1.0-debug.apk**.
+            2. Setelah unduhan selesai, ketuk notifikasi unduhan atau buka file melalui aplikasi Pengelola Berkas (File Manager).
+            3. Jika muncul peringatan *"Demi keamanan, ponsel Anda tidak diizinkan menginstal aplikasi tidak dikenal dari sumber ini"*, klik **Setelan (Settings)** lalu aktifkan **"Izinkan dari sumber ini" (Allow from this source)**.
+            4. Klik **Instal**, lalu buka aplikasi **DataWarga**.
+          files: |
+            app/build/outputs/apk/debug/DataWarga-v1.0-debug.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

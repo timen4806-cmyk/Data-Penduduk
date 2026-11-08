@@ -13,3 +13,9 @@ tasks.register<Delete>("clean") {
     delete(layout.buildDirectory)
   }
 }
+
+tasks.named<Wrapper>("wrapper") {
+  gradleVersion = "9.3.1"
+  distributionType = Wrapper.DistributionType.BIN
+  validateDistributionUrl = true
+}
